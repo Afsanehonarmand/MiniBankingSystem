@@ -1,4 +1,6 @@
-﻿namespace MiniBankingSystem.Domain.Entities;
+﻿using MiniBankingSystem.Domain.Enums;
+
+namespace MiniBankingSystem.Domain.Entities;
 
 public class Transaction
 {
