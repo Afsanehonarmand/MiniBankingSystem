@@ -1,8 +1,8 @@
-﻿namespace MiniBankingSystem.App.Demo
+﻿namespace MiniBankingSystem.ConsoleApp.Demo
 {
     using global::MiniBankingSystem.Application.Services;
 
-    namespace MiniBankingSystem.ConsoleApp.Demo;
+
 
     public class BankingDemoExecutor
     {

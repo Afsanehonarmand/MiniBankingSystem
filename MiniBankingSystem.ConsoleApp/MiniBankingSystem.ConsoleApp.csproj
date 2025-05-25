@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MiniBankingSystem.Application\MiniBankingSystem.Application.csproj" />
+    <ProjectReference Include="..\MiniBankingSystem.Domain\MiniBankingSystem.Domain.csproj" />
+    <ProjectReference Include="..\MiniBankingSystem.Infrastructure\MiniBankingSystem.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
