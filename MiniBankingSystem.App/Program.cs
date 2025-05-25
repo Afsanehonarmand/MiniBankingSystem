@@ -1,23 +1,48 @@
+using Microsoft.AspNetCore.Builder;
+using MiniBankingSystem.Application.Services;
+using MiniBankingSystem.Domain.Interfaces;
+using MiniBankingSystem.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// Swagger config
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Mini Banking System API",
+        Version = "v1",
+        Description = "API documentation for Mini Banking System prototype.",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "Your Name",
+            Email = "your@email.com",
+            Url = new Uri("https://your-portfolio.com")
+        }
+    });
+});
+
+builder.Services.AddSingleton<IAccountRepository, InMemoryAccountRepository>();
+builder.Services.AddScoped<BankingService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Mini Banking API v1");
+        options.DocumentTitle = "Mini Banking System Docs";
+        options.RoutePrefix = string.Empty; // Swagger UI at root (/)
+    });
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
