@@ -11,6 +11,12 @@ public class Account
 
     public Account(string ownerName, decimal initialBalance)
     {
+        if (string.IsNullOrWhiteSpace(ownerName))
+            throw new ArgumentException("Owner name is required.");
+
+        if (initialBalance < 0)
+            throw new ArgumentException("Initial balance cannot be negative.");
+
         Id = Guid.NewGuid();
         OwnerName = ownerName;
         Balance = initialBalance;
@@ -19,6 +25,9 @@ public class Account
 
     public void Deposit(decimal amount)
     {
+        if (amount <= 0)
+            throw new ArgumentException("Deposit amount must be greater than zero.");
+
         if (amount <= 0) throw new ArgumentException("Amount must be positive");
         Balance += amount;
         AddTransaction(TransactionType.Deposit, amount);
@@ -26,6 +35,11 @@ public class Account
 
     public void Withdraw(decimal amount)
     {
+        if (amount <= 0)
+            throw new ArgumentException("Withdrawal amount must be greater than zero.");
+        if (Balance < amount)
+            throw new InvalidOperationException("Insufficient balance.");
+
         if (amount <= 0) throw new ArgumentException("Amount must be positive");
         if (amount > Balance) throw new InvalidOperationException("Insufficient funds");
         Balance -= amount;
