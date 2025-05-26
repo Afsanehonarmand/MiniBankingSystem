@@ -1,4 +1,4 @@
-﻿# Mini Banking System
+# Mini Banking System
 
 ## Project Overview
 
