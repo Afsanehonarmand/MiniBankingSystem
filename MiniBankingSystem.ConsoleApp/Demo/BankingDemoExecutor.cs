@@ -1,137 +1,60 @@
-﻿namespace MiniBankingSystem.ConsoleApp.Demo
+﻿using MiniBankingSystem.Application.Interfaces;
+
+namespace MiniBankingSystem.ConsoleApp.Demo
 {
-    using global::MiniBankingSystem.Application.Services;
-
-
-
     public class BankingDemoExecutor
     {
-        private readonly BankingService _bankingService;
+        private readonly IBankingService _bankingService;
 
-        public BankingDemoExecutor(BankingService bankingService)
+        public BankingDemoExecutor(IBankingService bankingService)
         {
             _bankingService = bankingService;
         }
 
-        public void Run()
+        public async Task RunAsync()
         {
-            bool running = true;
+            Console.WriteLine("Running Mini Banking System Demo...\n");
 
-            while (running)
-            {
-                Console.Clear();
-                Console.WriteLine("💳 Mini Banking System - DEMO");
-                Console.WriteLine("1. Create Account");
-                Console.WriteLine("2. Deposit");
-                Console.WriteLine("3. Withdraw");
-                Console.WriteLine("4. Transfer");
-                Console.WriteLine("5. Show Transactions");
-                Console.WriteLine("6. Exit");
-                Console.Write("Choose an option: ");
+            var alice = await _bankingService.CreateAccountAsync("Alice", 1000);
+            var bob = await _bankingService.CreateAccountAsync("Bob", 500);
+            var charlie = await _bankingService.CreateAccountAsync("Charlie", 300);
 
-                var option = Console.ReadLine();
+            Console.WriteLine($"Created account for Alice: {alice.Id} (Balance: {alice.Balance})");
+            Console.WriteLine($"Created account for Bob: {bob.Id} (Balance: {bob.Balance})");
+            Console.WriteLine($"Created account for Charlie: {charlie.Id} (Balance: {charlie.Balance})");
 
-                try
-                {
-                    switch (option)
-                    {
-                        case "1":
-                            CreateAccount();
-                            break;
-                        case "2":
-                            Deposit();
-                            break;
-                        case "3":
-                            Withdraw();
-                            break;
-                        case "4":
-                            Transfer();
-                            break;
-                        case "5":
-                            ShowTransactions();
-                            break;
-                        case "6":
-                            running = false;
-                            break;
-                        default:
-                            Console.WriteLine("❌ Invalid option.");
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"❗ Error: {ex.Message}");
-                }
+            Console.WriteLine("\nPerforming operations...");
 
-                Console.WriteLine("\nPress any key to continue...");
-                Console.ReadKey();
-            }
+            await _bankingService.DepositAsync(alice.Id, 200);       // Alice gets +200
+            await _bankingService.WithdrawAsync(bob.Id, 100);        // Bob -100
+            await _bankingService.TransferAsync(alice.Id, charlie.Id, 150); // Alice -> Charlie
+
+            Console.WriteLine("\nTransactions complete.\n");
+
+
+            await ShowTransactionsAsync("Alice", alice.Id);
+            await ShowTransactionsAsync("Bob", bob.Id);
+            await ShowTransactionsAsync("Charlie", charlie.Id);
+
+            Console.WriteLine("Demo finished. Press any key to exit...");
+            Console.ReadKey();
         }
 
-        private void CreateAccount()
+        private async Task ShowTransactionsAsync(string name, Guid accountId)
         {
-            Console.Write("Owner name: ");
-            var owner = Console.ReadLine();
-            Console.Write("Initial balance: ");
-            var balance = decimal.Parse(Console.ReadLine() ?? "0");
-            var account = _bankingService.CreateAccount(owner!, balance);
-            Console.WriteLine($"✅ Account created. ID: {account.Id}");
-        }
+            var transactions = await _bankingService.GetAccountStatementAsync(accountId);
 
-        private void Deposit()
-        {
-            var id = ReadGuid("Account ID: ");
-            var amount = ReadDecimal("Amount: ");
-            _bankingService.Deposit(id, amount);
-            Console.WriteLine("✅ Deposit successful.");
-        }
-
-        private void Withdraw()
-        {
-            var id = ReadGuid("Account ID: ");
-            var amount = ReadDecimal("Amount: ");
-            _bankingService.Withdraw(id, amount);
-            Console.WriteLine("✅ Withdrawal successful.");
-        }
-
-        private void Transfer()
-        {
-            var fromId = ReadGuid("From Account ID: ");
-            var toId = ReadGuid("To Account ID: ");
-            var amount = ReadDecimal("Amount: ");
-            _bankingService.Transfer(fromId, toId, amount);
-            Console.WriteLine("✅ Transfer successful.");
-        }
-
-        private void ShowTransactions()
-        {
-            var id = ReadGuid("Account ID: ");
-            var transactions = _bankingService.GetAccountStatement(id);
-
+            Console.WriteLine($"\n{name}'s Transactions:");
             if (!transactions.Any())
             {
-                Console.WriteLine("📭 No transactions found.");
+                Console.WriteLine("No transactions.");
                 return;
             }
 
-            Console.WriteLine("📜 Transaction History:");
             foreach (var t in transactions)
             {
                 Console.WriteLine($"{t.Date:u} | {t.Type} | Amount: {t.Amount} | Target: {t.TargetAccountId}");
             }
         }
-
-        private Guid ReadGuid(string prompt)
-        {
-            Console.Write(prompt);
-            return Guid.TryParse(Console.ReadLine(), out var result) ? result : throw new FormatException("Invalid GUID format.");
-        }
-
-        private decimal ReadDecimal(string prompt)
-        {
-            Console.Write(prompt);
-            return decimal.TryParse(Console.ReadLine(), out var result) ? result : throw new FormatException("Invalid decimal format.");
-        }
     }
-
 }

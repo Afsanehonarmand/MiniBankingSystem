@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+using MiniBankingSystem.Application.Interfaces;
 using MiniBankingSystem.Application.Services;
 using MiniBankingSystem.Domain.Interfaces;
 using MiniBankingSystem.Infrastructure.Repositories;
@@ -10,24 +10,10 @@ builder.Services.AddControllers();
 
 // Swagger config
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "Mini Banking System API",
-        Version = "v1",
-        Description = "API documentation for Mini Banking System prototype.",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
-        {
-            Name = "Your Name",
-            Email = "your@email.com",
-            Url = new Uri("https://your-portfolio.com")
-        }
-    });
-});
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IAccountRepository, InMemoryAccountRepository>();
-builder.Services.AddScoped<BankingService>();
+builder.Services.AddScoped<IBankingService, BankingService>();
 
 var app = builder.Build();
 

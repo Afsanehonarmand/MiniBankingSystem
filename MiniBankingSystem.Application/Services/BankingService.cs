@@ -1,10 +1,11 @@
-﻿using MiniBankingSystem.Domain.Entities;
+﻿using MiniBankingSystem.Application.Interfaces;
+using MiniBankingSystem.Domain.Entities;
 using MiniBankingSystem.Domain.Enums;
 using MiniBankingSystem.Domain.Interfaces;
 
 namespace MiniBankingSystem.Application.Services
 {
-    public class BankingService
+    public class BankingService : IBankingService
     {
         private readonly IAccountRepository _accountRepository;
 
@@ -13,37 +14,37 @@ namespace MiniBankingSystem.Application.Services
             _accountRepository = accountRepository;
         }
 
-        public Account CreateAccount(string ownerName, decimal initialBalance)
+        public async Task<Account> CreateAccountAsync(string ownerName, decimal initialBalance)
         {
             if (initialBalance < 0)
                 throw new ArgumentException("Initial balance cannot be negative");
 
             var account = new Account(ownerName, initialBalance);
-            _accountRepository.Add(account);
+            await _accountRepository.AddAsync(account);
             return account;
         }
 
-        public void Deposit(Guid accountId, decimal amount)
+        public async Task DepositAsync(Guid accountId, decimal amount)
         {
-            var account = GetAccountOrThrow(accountId);
+            var account = await GetAccountOrThrowAsync(accountId);
             account.Deposit(amount);
-            _accountRepository.Update(account);
+            await _accountRepository.UpdateAsync(account);
         }
 
-        public void Withdraw(Guid accountId, decimal amount)
+        public async Task WithdrawAsync(Guid accountId, decimal amount)
         {
-            var account = GetAccountOrThrow(accountId);
+            var account = await GetAccountOrThrowAsync(accountId);
             account.Withdraw(amount);
-            _accountRepository.Update(account);
+            await _accountRepository.UpdateAsync(account);
         }
 
-        public void Transfer(Guid fromAccountId, Guid toAccountId, decimal amount)
+        public async Task TransferAsync(Guid fromAccountId, Guid toAccountId, decimal amount)
         {
             if (fromAccountId == toAccountId)
                 throw new ArgumentException("Cannot transfer to the same account");
 
-            var from = GetAccountOrThrow(fromAccountId);
-            var to = GetAccountOrThrow(toAccountId);
+            var from = await GetAccountOrThrowAsync(fromAccountId);
+            var to = await GetAccountOrThrowAsync(toAccountId);
 
             if (amount <= 0)
                 throw new ArgumentException("Transfer amount must be positive");
@@ -56,24 +57,27 @@ namespace MiniBankingSystem.Application.Services
             to.Deposit(amount);
             to.AddTransaction(TransactionType.Deposit, amount, from.Id);
 
-            _accountRepository.Update(from);
-            _accountRepository.Update(to);
+            await _accountRepository.UpdateAsync(from);
+            await _accountRepository.UpdateAsync(to);
         }
 
-        public List<Transaction> GetAccountStatement(Guid accountId)
+        public async Task<List<Transaction>> GetAccountStatementAsync(Guid accountId)
         {
-            var account = GetAccountOrThrow(accountId);
+            var account = await GetAccountOrThrowAsync(accountId);
             return account.Transactions.OrderByDescending(t => t.Date).ToList();
         }
 
-        private Account GetAccountOrThrow(Guid accountId)
+        public async Task<List<Account>> GetAllAccountsAsync()
         {
-            var account = _accountRepository.GetById(accountId);
-            if (account == null)
-                throw new InvalidOperationException("Account not found");
+            return await _accountRepository.GetAllAsync();
+        }
 
-            return account;
+        private async Task<Account> GetAccountOrThrowAsync(Guid accountId)
+        {
+            var account = await _accountRepository.GetByIdAsync(accountId);
+            return account ?? throw new InvalidOperationException("Account not found");
         }
     }
+
 
 }

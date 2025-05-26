@@ -8,25 +8,29 @@ namespace MiniBankingSystem.Infrastructure.Repositories
     {
         private readonly ConcurrentDictionary<Guid, Account> _accounts = new();
 
-        public void Add(Account account)
+        public Task AddAsync(Account account)
         {
             _accounts.TryAdd(account.Id, account);
+            return Task.CompletedTask;
         }
 
-        public Account? GetById(Guid id)
+        public Task<Account?> GetByIdAsync(Guid accountId)
         {
-            _accounts.TryGetValue(id, out var account);
-            return account;
+            _accounts.TryGetValue(accountId, out var account);
+            return Task.FromResult(account);
         }
 
-        public void Update(Account account)
+        public Task<List<Account>> GetAllAsync()
         {
+            return Task.FromResult(_accounts.Values.ToList());
+        }
+
+        public Task UpdateAsync(Account account)
+        {
+            // In-memory update is implicit because the reference is already in the dictionary
             _accounts[account.Id] = account;
-        }
-
-        public List<Account> GetAll()
-        {
-            return _accounts.Values.ToList();
+            return Task.CompletedTask;
         }
     }
+
 }

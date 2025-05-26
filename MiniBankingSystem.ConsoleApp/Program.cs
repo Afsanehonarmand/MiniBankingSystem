@@ -3,10 +3,8 @@ using MiniBankingSystem.Application.Services;
 using MiniBankingSystem.ConsoleApp.Demo;
 using MiniBankingSystem.Infrastructure.Repositories;
 
-Console.WriteLine("Hello, World!");
+//Console.WriteLine("Hello, World!");
 
-var accountRepository = new InMemoryAccountRepository();
-var bankingService = new BankingService(accountRepository);
-var demo = new BankingDemoExecutor(bankingService);
-
-demo.Run();
+var service = new BankingService(new InMemoryAccountRepository());
+var demo = new BankingDemoExecutor(service);
+await demo.RunAsync();

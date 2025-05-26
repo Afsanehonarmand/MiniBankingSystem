@@ -1,16 +1,16 @@
-﻿using MiniBankingSystem.Application.Services;
-using MiniBankingSystem.Domain.Entities;
+﻿using MiniBankingSystem.Application.Interfaces;
+using MiniBankingSystem.Application.Services;
+using MiniBankingSystem.Domain.Enums;
 using MiniBankingSystem.Domain.Interfaces;
-using Xunit;
-using System;
 using MiniBankingSystem.Infrastructure.Repositories;
+using Xunit;
 
 namespace MiniBankingSystem.Tests
 {
     public class BankingServiceTests
     {
         private readonly IAccountRepository _repository;
-        private readonly BankingService _service;
+        private readonly IBankingService _service;
 
         public BankingServiceTests()
         {
@@ -19,51 +19,67 @@ namespace MiniBankingSystem.Tests
         }
 
         [Fact]
-        public void CreateAccount_ShouldReturnAccountWithCorrectData()
+        public async Task CreateAccount_ShouldReturnAccountWithCorrectData()
         {
             var owner = "Ali";
             var initialBalance = 5000;
 
-            var account = _service.CreateAccount(owner, initialBalance);
+            var account = await _service.CreateAccountAsync(owner, initialBalance);
 
             Assert.Equal(owner, account.OwnerName);
             Assert.Equal(initialBalance, account.Balance);
         }
 
         [Fact]
-        public void Deposit_ShouldIncreaseBalance()
+        public async Task Deposit_ShouldIncreaseBalance()
         {
-            var account = _service.CreateAccount("Test", 1000);
-            _service.Deposit(account.Id, 500);
+            var account = await _service.CreateAccountAsync("Test", 1000);
+            await _service.DepositAsync(account.Id, 500);
 
-            var updated = _repository.GetById(account.Id);
+            var updated = await _repository.GetByIdAsync(account.Id);
             Assert.Equal(1500, updated!.Balance);
         }
 
         [Fact]
-        public void Withdraw_ShouldThrowException_WhenInsufficientFunds()
+        public async Task Withdraw_ShouldThrowException_WhenInsufficientFunds()
         {
-            var account = _service.CreateAccount("Test", 1000);
+            var account = await _service.CreateAccountAsync("Test", 1000);
 
-            Assert.Throws<InvalidOperationException>(() =>
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
-                _service.Withdraw(account.Id, 2000);
+                await _service.WithdrawAsync(account.Id, 2000);
             });
         }
 
         [Fact]
-        public void Transfer_ShouldMoveFundsBetweenAccounts()
+        public async Task Transfer_ShouldMoveFundsBetweenAccounts()
         {
-            var from = _service.CreateAccount("From", 1000);
-            var to = _service.CreateAccount("To", 500);
+            var from = await _service.CreateAccountAsync("From", 1000);
+            var to = await _service.CreateAccountAsync("To", 500);
 
-            _service.Transfer(from.Id, to.Id, 300);
+            await _service.TransferAsync(from.Id, to.Id, 300);
 
-            var fromUpdated = _repository.GetById(from.Id);
-            var toUpdated = _repository.GetById(to.Id);
+            var fromUpdated = await _repository.GetByIdAsync(from.Id);
+            var toUpdated = await _repository.GetByIdAsync(to.Id);
 
             Assert.Equal(700, fromUpdated!.Balance);
             Assert.Equal(800, toUpdated!.Balance);
         }
+
+
+        [Fact]
+        public async Task GetAccountStatement_ShouldReturnTransactions()
+        {
+            var account = await _service.CreateAccountAsync("HistoryTest", 1000);
+            await _service.DepositAsync(account.Id, 200);
+            await _service.WithdrawAsync(account.Id, 100);
+
+            var transactions = await _service.GetAccountStatementAsync(account.Id);
+
+            Assert.Equal(2, transactions.Count);
+            Assert.Contains(transactions, t => t.Type == TransactionType.Deposit && t.Amount == 200);
+            Assert.Contains(transactions, t => t.Type == TransactionType.Withdrawal && t.Amount == 100);
+        }
+
     }
 }
