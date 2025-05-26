@@ -36,7 +36,7 @@ The system uses purely in-memory storage — it does not use a database or file-
 
 
 
-Design Decisions
+## Design Decisions
 Architecture
 The project is structured using clean architecture principles, separated into the following layers:
 
@@ -62,7 +62,7 @@ All service methods are asynchronous to reflect modern design patterns and simul
 Testability
 The architecture enables easy testing. Business logic and data layers are isolated and interact only through interfaces, making them simple to mock and validate in unit tests.
 
-Assumptions
+## Assumptions
 Each account is identified by a unique GUID.
 
 All transactions are synchronous and atomic.
@@ -73,8 +73,8 @@ Currency values are represented as integers (e.g., cents).
 
 The application is a standalone console app with no external dependencies.
 
-How to Test
-Unit Tests
+## How to Test
+## Unit Tests
 
 The project includes unit tests written using xUnit. To run the test :
 
@@ -92,7 +92,7 @@ Transferring funds between accounts
 
 Viewing transaction history
 
-Project Structure:
+## Project Structure:
 MiniBankingSystem/
 │
 ├── Domain/               # Business entities and interfaces
@@ -103,11 +103,6 @@ MiniBankingSystem/
 └── README.md             # Project documentation
 
 
-Final Notes
+## Final Notes
 This project demonstrates the foundations of a banking system backend. It is designed for extensibility and easy refactoring. It can be further evolved into a production-ready system with API endpoints, real databases, authentication, and other enterprise features.
-
-yaml
-Copy
-Edit
-
 
