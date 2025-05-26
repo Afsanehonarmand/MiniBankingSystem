@@ -5,7 +5,7 @@ using MiniBankingSystem.Domain.Interfaces;
 using MiniBankingSystem.Infrastructure.Repositories;
 using Xunit;
 
-namespace MiniBankingSystem.Tests
+namespace MiniBankingSystem.Tests.Service
 {
     public class BankingServiceTests
     {

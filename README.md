@@ -76,21 +76,31 @@ The application is a standalone console app with no external dependencies.
 ## How to Test
 ## Unit Tests
 
-The project includes unit tests written using xUnit. To run the test :
 
+This project includes unit tests that validate the behavior of both the application services and the domain logic.
+
+Testing Coverage :
+| Layer        | Description                                                           
+ -----------  ------------------------------------------------------------------- 
+ Domain       Core business rules such as deposits, withdrawals, overdraft checks 
+ Application  Account creation, fund transfers, and transaction history           
+
+##  How to Run the Tests
 cd MiniBankingSystem.Tests
 dotnet test
 
-Covered Scenarios
-Creating accounts
+## Scenarios Covered
+Creating accounts with valid and invalid data
 
-Depositing and withdrawing funds
+Depositing funds and validating balances
 
-Preventing overdrafts
+Withdrawing funds, including overdraft prevention
 
 Transferring funds between accounts
 
-Viewing transaction history
+Tracking and verifying transaction history
+
+The tests are written using xUnit and run entirely in memory, with no external dependencies.
 
 ## Project Structure:
 MiniBankingSystem/
