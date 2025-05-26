@@ -2,6 +2,7 @@
 
 namespace MiniBankingSystem.ConsoleApp.Demo
 {
+    // This class is only used to demonstrate system functionality from the console.
     public class BankingDemoExecutor
     {
         private readonly IBankingService _bankingService;
